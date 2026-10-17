@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bin {
+  id             String   @id @default(cuid())
+  binId          String   @unique
+  name           String
+  location       String
+  area           String
+  latitude       Float?
+  longitude      Float?
+  fillPercentage Float    @default(0)
+  status         String   @default("Normal") // Normal, Nearly Full, Full
+  lastUpdated    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  alerts  Alert[]
+  tasks   CollectionTask[]
+  logs    ActivityLog[]
+}
+
+model Alert {
+  id             String   @id @default(cuid())
+  binId          String
+  bin            Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
+  alertLevel     String   // Warning, Critical
+  fillPercentage Float
+  message        String
+  isAcknowledged Boolean  @default(false)
+  isResolved     Boolean  @default(false)
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model CollectionTask {
+  id             String    @id @default(cuid())
+  taskId         String    @unique
+  binId          String
+  bin            Bin       @relation(fields: [binId], references: [id], onDelete: Cascade)
+  assignedWorker String?
+  priority       String    @default("Medium") // Low, Medium, High, Urgent
+  status         String    @default("Pending") // Pending, Assigned, In Progress, Completed
+  notes          String?
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  binId       String?
+  bin         Bin?     @relation(fields: [binId], references: [id], onDelete: SetNull)
+  action      String
+  description String
+  metadata    String?  // JSON string
+  createdAt   DateTime @default(now())
+}
+
+model AppSetting {
+  id                String   @id @default(cuid())
+  appName           String   @default("Smart Waste Management System")
+  warningThreshold  Int      @default(70)
+  criticalThreshold Int      @default(90)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

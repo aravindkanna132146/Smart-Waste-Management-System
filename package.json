@@ -1,0 +1,17 @@
+{
+    "name": "smart-waste-management",
+    "version": "1.0.0",
+    "description": "Smart Waste Management System - College Project",
+    "private": true,
+    "scripts": {
+        "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+        "setup": "cd server && npm run db:generate && npm run db:migrate && npm run db:seed",
+        "dev": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\"",
+        "dev:server": "cd server && npm run dev",
+        "dev:client": "cd client && npm run dev",
+        "build:client": "cd client && npm run build"
+    },
+    "devDependencies": {
+        "concurrently": "^9.0.1"
+    }
+}
